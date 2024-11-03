@@ -178,7 +178,7 @@ SyncAsyncPushT: entity work.SyncAsync
       kResetTo => '0',
       kStages => 2)
    port map (
-      aoReset => aoReset,
+      aReset => aoReset,
       aIn => iPushT,
       OutClk => OutClk,
       oOut => oPushT);
@@ -224,7 +224,7 @@ SyncAsyncPushTBack: entity work.SyncAsync
       kResetTo => '0',
       kStages => 2)
    port map (
-      aoReset => aiReset,
+      aReset => aiReset,
       aIn => oPushTBack,
       OutClk => InClk,
       oOut => iPushTBack);

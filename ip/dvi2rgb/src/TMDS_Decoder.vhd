@@ -158,7 +158,7 @@ end process TimeoutCounter;
 rTimeoutOvf <= '0' when rTimeoutCnt /= kTimeoutEnd - 1 else
                '1';
 
-SyncBaseOvf: entity work.SyncBase
+SyncBaseOvf: entity work.SyncBase0
    generic map (
       kResetTo => '0',
       kStages => 2) --use double FF synchronizer
@@ -169,7 +169,7 @@ SyncBaseOvf: entity work.SyncBase
       OutClk => PixelClk,
       oOut => pTimeoutOvf);
       
-SyncBaseRst: entity work.SyncBase
+SyncBaseRst: entity work.SyncBase0
    generic map (
       kResetTo => '1',
       kStages => 2) --use double FF synchronizer

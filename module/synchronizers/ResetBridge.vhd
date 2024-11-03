@@ -101,7 +101,7 @@ OutputFF_Yes: if kOutputFF generate
          kResetTo => '1',
          kStages => kStages) --use double FF synchronizer
       port map (
-         aoReset => aRst_int,
+         aReset => aRst_int,
          aIn => '0',
          OutClk => OutClk,
          oOut => aoRst_int);
@@ -123,7 +123,7 @@ OutputFF_No: if not kOutputFF generate
          kResetTo => kPolarity,
          kStages => kStages) --use double FF synchronizer
       port map (
-         aoReset => aRst_int,
+         aReset => aRst_int,
          aIn => not kPolarity,
          OutClk => OutClk,
          oOut => aoRst);

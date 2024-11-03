@@ -109,7 +109,7 @@ SyncAsyncx: entity work.SyncAsync
       kResetTo => kResetTo,
       kStages => kStages)
    port map (
-      aoReset => aoReset,
+      aReset => aoReset,
       aIn => iIn_q,
       OutClk => OutClk,
       oOut => oOut);

@@ -42,7 +42,7 @@
 -- This module synchronizes the asynchronous signal (aIn) with the OutClk clock
 -- domain and provides it on oOut. The number of FFs in the synchronizer chain
 -- can be configured with kStages. The reset value for oOut can be configured
--- with kResetTo. The asynchronous reset w/ synchronous de-assertion (aoReset)
+-- with kResetTo. The asynchronous reset w/ synchronous de-assertion (aReset)
 -- is always active-high.
 -- 
 -- Constraints:
@@ -75,9 +75,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity SyncAsync is
    Generic (
       kResetTo : std_logic := '0'; --value when reset and upon init
-      kStages : natural := 2); --double sync by default
+      kStages : natural := 2;
+      kResetPolarity : std_logic := '1'); --double sync by default
    Port (
-      aoReset : in STD_LOGIC; -- active-high asynchronous reset w/ sync de-assertion
+      aReset : in STD_LOGIC; -- active-high asynchronous reset w/ sync de-assertion
       aIn : in STD_LOGIC;
       OutClk : in STD_LOGIC;
       oOut : out STD_LOGIC);
@@ -91,9 +92,9 @@ attribute ASYNC_REG : string;
 attribute ASYNC_REG of oSyncStages: signal is "TRUE";
 begin
 
-Sync: process (OutClk, aoReset)
+Sync: process (OutClk, aReset)
 begin
-   if (aoReset = '1') then
+   if (aReset = kResetPolarity) then
       oSyncStages <= (others => kResetTo);
    elsif Rising_Edge(OutClk) then
       oSyncStages <= oSyncStages(oSyncStages'high-1 downto 0) & aIn;

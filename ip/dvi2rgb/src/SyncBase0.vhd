@@ -1,9 +1,9 @@
 -------------------------------------------------------------------------------
 --
--- File: SyncAsync.vhd
+-- File: SyncBase.vhd
 -- Author: Elod Gyorgy
 -- Original Project: HDMI input on 7-series Xilinx FPGA
--- Date: 15 December 2017
+-- Date: 20 October 2014
 --
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
@@ -38,8 +38,9 @@
 -------------------------------------------------------------------------------
 --
 -- Purpose:
--- This module synchronizes the asynchronous signal (aIn) with the OutClk clock
--- domain and provides it on oOut. The number of FFs in the synchronizer chain
+-- This module synchronizes a signal (iIn) in one clock domain (InClk) with
+-- another clock domain (OutClk) and provides it on oOut.
+-- The number of FFs in the synchronizer chain
 -- can be configured with kStages. The reset value for oOut can be configured
 -- with kResetTo. The asynchronous reset (aReset) is always active-high.
 --  
@@ -58,32 +59,42 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity SyncAsync is
+entity SyncBase0 is
    Generic (
       kResetTo : std_logic := '0'; --value when reset and upon init
-      kStages : natural := 2; --double sync by default
-      kResetPolarity : std_logic := '1'); --aReset active-high by default
+      kStages : natural := 2); --double sync by default
    Port (
-      aReset : in STD_LOGIC; -- active-high/active-low asynchronous reset
-      aIn : in STD_LOGIC;
+      aReset : in STD_LOGIC; -- active-high asynchronous reset
+      InClk : in std_logic;
+      iIn : in STD_LOGIC;
       OutClk : in STD_LOGIC;
       oOut : out STD_LOGIC);
-end SyncAsync;
+end SyncBase0;
 
-architecture Behavioral of SyncAsync is
-signal oSyncStages : std_logic_vector(kStages-1 downto 0) := (others => kResetTo);
-attribute ASYNC_REG : string;
-attribute ASYNC_REG of oSyncStages: signal is "TRUE";
+architecture Behavioral of SyncBase0 is
+
+signal iIn_q : std_logic;
 begin
 
-Sync: process (OutClk, aReset)
+--By re-registering iIn on its own domain, we make sure iIn_q is glitch-free
+SyncSource: process(aReset, InClk)
 begin
-   if (aReset = kResetPolarity) then
-      oSyncStages <= (others => kResetTo);
-   elsif Rising_Edge(OutClk) then
-      oSyncStages <= oSyncStages(oSyncStages'high-1 downto 0) & aIn;
+   if (aReset = '1') then
+      iIn_q <= kResetTo;
+   elsif Rising_Edge(InClk) then
+      iIn_q <= iIn;
    end if;
-end process Sync;
-oOut <= oSyncStages(oSyncStages'high);
+end process SyncSource;
+
+--Crossing clock boundary here 
+SyncAsyncx: entity work.SyncAsync
+   generic map (
+      kResetTo => kResetTo,
+      kStages => kStages)
+   port map (
+      aReset => aReset,
+      aIn => iIn_q,
+      OutClk => OutClk,
+      oOut => oOut);
 
 end Behavioral;
